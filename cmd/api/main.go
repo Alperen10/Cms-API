@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/Alperen10/Cms/internal/api/routes"
 	"github.com/Alperen10/Cms/internal/models"
 	"github.com/Alperen10/Cms/pkg/database"
 	"github.com/gin-gonic/gin"
@@ -32,6 +33,7 @@ func main() {
 	// Auto migrate database schemas
 	if err := db.AutoMigrate(
 		&models.User{},
+		&models.Post{},
 	); err != nil {
 		log.Fatalf("Failed to migrate database: %v", err)
 	}
@@ -51,6 +53,16 @@ func main() {
 		}
 
 		c.Next()
+	})
+
+	// Setup routes
+	routes.SetupRoutes(router)
+
+	// Health check endpoint
+	router.GET("/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"status": "ok",
+		})
 	})
 
 	// Get server address from environment variables
